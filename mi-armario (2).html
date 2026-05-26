@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>boop</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0E0D0C;
+    --paper: #F7F4F0;
+    --surface: #FFFFFF;
+    --parchment: #EEE9E2;
+    --stone: #B8B0A6;
+    --mid: #8A8078;
+    --accent: #FF6B35;
+    --accent2: #FFB347;
+    --border: rgba(14,13,12,0.09);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--paper); color:var(--ink); min-height:100vh; }
+
+  .view { display:none; }
+  .view.active { display:flex; flex-direction:column; }
+
+  /* ══ HOME ══ */
+  #homeView {
+    min-height:100vh;
+    align-items:center;
+    background:var(--paper);
+    position:relative;
+  }
+
+  .home-top {
+    width:100%; padding:1.25rem 1.5rem;
+    display:flex; justify-content:flex-end;
+    position:absolute; top:0; z-index:10;
+  }
+  .btn-add-top {
+    background:var(--ink); color:white; border:none;
+    padding:0.55rem 1.25rem; border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500;
+    letter-spacing:0.06em; cursor:pointer; transition:background 0.2s, transform 0.15s;
+  }
+  .btn-add-top:hover { background:var(--accent); transform:translateY(-1px); }
+
+  .home-center {
+    width:100%; max-width:700px;
+    padding:2rem 1.5rem 3rem;
+    display:flex; flex-direction:column; align-items:center;
+    margin-top:5rem;
+  }
+
+  .boop-logo {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:clamp(4rem,14vw,7rem);
+    line-height:0.9; letter-spacing:-0.03em;
+    color:var(--ink); margin-bottom:0.3rem; text-align:center;
+    animation:popIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+
+  .boop-sub {
+    font-size:0.82rem; font-weight:300; letter-spacing:0.2em;
+    text-transform:uppercase; color:var(--mid); margin-bottom:3rem;
+    text-align:center; animation:fadeUp 0.7s 0.15s ease both;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  .home-chat-wrap {
+    width:100%; position:relative; margin-bottom:2.75rem;
+    animation:fadeUp 0.7s 0.25s ease both;
+  }
+  .home-chat-input {
+    width:100%; padding:1.1rem 4rem 1.1rem 1.5rem;
+    font-family:'DM Sans',sans-serif; font-size:0.95rem; font-weight:300;
+    color:var(--ink); background:white;
+    border:1.5px solid var(--border); border-radius:50px; outline:none;
+    box-shadow:0 4px 20px rgba(14,13,12,0.07);
+    transition:border-color 0.2s, box-shadow 0.2s;
+  }
+  .home-chat-input:focus { border-color:var(--accent); box-shadow:0 4px 24px rgba(255,107,53,0.12); }
+  .home-chat-input::placeholder { color:var(--stone); }
+  .home-send-btn {
+    position:absolute; right:0.5rem; top:50%; transform:translateY(-50%);
+    width:44px; height:44px; border-radius:50%;
+    background:var(--ink); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background 0.2s;
+  }
+  .home-send-btn:hover { background:var(--accent); }
+
+  /* CATEGORY GRID */
+  .cat-section { width:100%; animation:fadeUp 0.7s 0.35s ease both; }
+  .cat-section-label {
+    font-size:0.65rem; font-weight:500; letter-spacing:0.16em;
+    text-transform:uppercase; color:var(--stone);
+    margin-bottom:0.875rem; text-align:center;
+  }
+  .cat-grid {
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:0.75rem;
+  }
+  .cat-tile {
+    background:white; border:1px solid var(--border); border-radius:16px;
+    padding:1.25rem 0.5rem 1rem;
+    display:flex; flex-direction:column; align-items:center; gap:0.4rem;
+    cursor:pointer; transition:transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    position:relative; overflow:hidden;
+  }
+  .cat-tile:hover {
+    transform:translateY(-4px);
+    box-shadow:0 12px 32px rgba(14,13,12,0.1);
+    border-color:transparent;
+  }
+  .cat-tile:hover::before {
+    content:''; position:absolute; inset:0; border-radius:16px;
+    background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);
+    opacity:0.06;
+  }
+  .cat-icon { width:52px; height:52px; display:flex; align-items:center; justify-content:center; }
+  .icon-3d {
+    font-size:2.2rem;
+    filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.18)) drop-shadow(0 2px 2px rgba(0,0,0,0.12));
+    transition:transform 0.2s, filter 0.2s;
+    line-height:1;
+  }
+  .cat-tile:hover .icon-3d {
+    transform:scale(1.15) translateY(-2px) rotate(-3deg);
+    filter:drop-shadow(3px 8px 10px rgba(0,0,0,0.22)) drop-shadow(0 3px 4px rgba(0,0,0,0.14));
+  }
+  .cat-tile:hover svg.icon-3d {
+    transform:scale(1.15) translateY(-2px) rotate(-3deg);
+    filter:drop-shadow(3px 8px 10px rgba(0,0,0,0.22)) drop-shadow(0 3px 4px rgba(0,0,0,0.14));
+  }
+  .cat-name { font-size:0.72rem; font-weight:500; letter-spacing:0.04em; color:var(--ink); text-align:center; }
+  .cat-count { font-size:0.62rem; color:var(--stone); }
+
+  /* ══ WARDROBE VIEW ══ */
+  #wardrobeView { min-height:100vh; }
+
+  .top-nav {
+    background:white; border-bottom:1px solid var(--border);
+    padding:0 1.5rem; height:56px;
+    display:flex; align-items:center; gap:0.75rem;
+    position:sticky; top:0; z-index:50; flex-shrink:0;
+  }
+  .back-btn {
+    background:none; border:none; font-size:1.1rem; cursor:pointer;
+    color:var(--mid); padding:0.25rem; transition:color 0.15s;
+    display:flex; align-items:center;
+  }
+  .back-btn:hover { color:var(--ink); }
+  .nav-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; flex:1; color:var(--ink); }
+  .nav-actions { display:flex; gap:0.5rem; }
+  .nav-btn {
+    background:none; border:1px solid var(--border); color:var(--mid);
+    padding:0.4rem 1rem; border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-size:0.72rem; font-weight:400;
+    letter-spacing:0.06em; text-transform:uppercase;
+    cursor:pointer; transition:all 0.2s; white-space:nowrap;
+  }
+  .nav-btn:hover { border-color:var(--ink); color:var(--ink); }
+  .nav-btn.accent { background:var(--ink); color:white; border-color:var(--ink); }
+  .nav-btn.accent:hover { background:var(--accent); border-color:var(--accent); }
+  .sel-badge { background:var(--accent); color:white; font-size:0.62rem; padding:1px 6px; border-radius:10px; margin-left:3px; }
+
+  .wardrobe-toolbar {
+    background:var(--parchment); border-bottom:1px solid var(--border);
+    padding:0.75rem 1.5rem; display:flex; gap:0.75rem; align-items:center; flex-shrink:0;
+  }
+  .wt-search {
+    flex:1; padding:0.5rem 1rem; background:white;
+    border:1px solid var(--border); border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-size:0.85rem; color:var(--ink);
+    outline:none; transition:border-color 0.2s;
+  }
+  .wt-search:focus { border-color:var(--accent); }
+  .wt-select {
+    padding:0.5rem 0.75rem; background:white; border:1px solid var(--border); border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-size:0.78rem; color:var(--mid); outline:none; cursor:pointer;
+  }
+  .count-label { font-size:0.78rem; color:var(--mid); white-space:nowrap; }
+
+  .wardrobe-body { flex:1; display:flex; overflow-y:auto; }
+  .wardrobe-grid {
+    flex:1; padding:1.5rem;
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(155px,1fr));
+    gap:1rem; align-content:start;
+  }
+  .item-card {
+    background:white; border:1px solid var(--border); border-radius:12px;
+    overflow:hidden; cursor:pointer;
+    transition:transform 0.2s, box-shadow 0.2s, border-color 0.2s; position:relative;
+  }
+  .item-card:hover { transform:translateY(-3px); box-shadow:0 8px 24px rgba(14,13,12,0.09); }
+  .item-card.selected { border:2px solid var(--accent); }
+  .item-img { width:100%; aspect-ratio:3/4; object-fit:cover; display:block; background:var(--parchment); }
+  .item-placeholder {
+    width:100%; aspect-ratio:3/4; background:var(--parchment);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2.5rem; filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.15));
+  }
+  .item-info { padding:0.6rem 0.75rem; }
+  .item-name { font-size:0.8rem; font-weight:400; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .item-cat-tag { font-size:0.67rem; color:var(--mid); margin-top:2px; text-transform:uppercase; letter-spacing:0.06em; }
+  .item-del {
+    position:absolute; top:0.5rem; right:0.5rem;
+    background:rgba(14,13,12,0.65); color:white;
+    border:none; width:22px; height:22px;
+    border-radius:50%; font-size:0.7rem; cursor:pointer;
+    display:none; align-items:center; justify-content:center;
+  }
+  .item-card:hover .item-del { display:flex; }
+
+  .empty-state {
+    flex:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    gap:0.75rem; color:var(--mid); padding:3rem;
+  }
+  .empty-icon { font-size:3rem; opacity:0.3; filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.12)); }
+  .empty-title { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; }
+  .empty-sub { font-size:0.82rem; opacity:0.7; }
+
+  /* ══ STYLIST VIEW ══ */
+  #stylistView { min-height:100vh; }
+  .chat-messages {
+    flex:1; overflow-y:auto; padding:1.5rem;
+    display:flex; flex-direction:column; gap:1rem;
+    max-width:700px; width:100%; margin:0 auto;
+  }
+  .msg-row { display:flex; flex-direction:column; }
+  .msg-row.user { align-items:flex-end; }
+  .msg-sender { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--stone); margin-bottom:4px; padding:0 4px; }
+  .msg-bubble { max-width:80%; padding:0.875rem 1.1rem; font-size:0.875rem; line-height:1.6; }
+  .msg-row.assistant .msg-bubble { background:white; border:1px solid var(--border); color:var(--ink); border-radius:4px 16px 16px 16px; }
+  .msg-row.user .msg-bubble { background:var(--ink); color:var(--paper); border-radius:16px 4px 16px 16px; }
+  .typing-dots { display:flex; gap:5px; padding:4px 0; }
+  .dot { width:7px; height:7px; background:var(--stone); border-radius:50%; animation:bounce 1.2s infinite; }
+  .dot:nth-child(2){animation-delay:0.2s} .dot:nth-child(3){animation-delay:0.4s}
+  @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+  .quick-prompts {
+    padding:0.75rem 1.5rem; display:flex; flex-wrap:wrap; gap:0.5rem;
+    max-width:700px; margin:0 auto; width:100%;
+    border-top:1px solid var(--border); flex-shrink:0;
+  }
+  .q-btn {
+    background:var(--parchment); border:1px solid var(--border);
+    padding:0.35rem 0.85rem; border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-size:0.75rem; color:var(--mid);
+    cursor:pointer; transition:all 0.15s;
+  }
+  .q-btn:hover { background:var(--ink); color:white; border-color:var(--ink); }
+
+  .chat-input-bar {
+    border-top:1px solid var(--border); padding:0.875rem 1.5rem;
+    display:flex; gap:0.75rem;
+    max-width:700px; margin:0 auto; width:100%; flex-shrink:0;
+  }
+  .chat-input {
+    flex:1; padding:0.7rem 1rem; background:white;
+    border:1px solid var(--border); border-radius:50px;
+    font-family:'DM Sans',sans-serif; font-size:0.875rem; color:var(--ink);
+    outline:none; transition:border-color 0.2s;
+  }
+  .chat-input:focus { border-color:var(--accent); }
+  .chat-send {
+    background:var(--ink); color:white; border:none;
+    width:42px; height:42px; border-radius:50%;
+    font-size:1rem; cursor:pointer; flex-shrink:0;
+    transition:background 0.2s; display:flex; align-items:center; justify-content:center;
+  }
+  .chat-send:hover { background:var(--accent); }
+
+  /* ══ MODAL ══ */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(14,13,12,0.55);
+    z-index:200; display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity 0.25s;
+  }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal {
+    background:var(--paper); border-radius:16px; padding:2rem;
+    width:420px; max-width:92vw; max-height:92vh; overflow-y:auto;
+    transform:translateY(12px); transition:transform 0.25s;
+  }
+  .modal-overlay.open .modal { transform:translateY(0); }
+  .modal-title { font-family:'Syne',sans-serif; font-size:1.3rem; font-weight:700; margin-bottom:1.5rem; }
+  .form-label { display:block; font-size:0.67rem; font-weight:500; letter-spacing:0.12em; text-transform:uppercase; color:var(--mid); margin-bottom:0.4rem; }
+  .form-group { margin-bottom:1rem; }
+  .form-input, .form-select {
+    width:100%; padding:0.625rem 0.875rem; background:white;
+    border:1px solid var(--border); border-radius:8px;
+    font-family:'DM Sans',sans-serif; font-size:0.875rem; color:var(--ink);
+    outline:none; transition:border-color 0.2s;
+  }
+  .form-input:focus,.form-select:focus { border-color:var(--accent); }
+  .drop-zone {
+    border:2px dashed var(--stone); border-radius:8px; padding:1.75rem;
+    text-align:center; cursor:pointer; transition:all 0.2s;
+    background:white; position:relative;
+  }
+  .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:rgba(255,107,53,0.04); }
+  .drop-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .drop-text { font-size:0.8rem; color:var(--mid); margin-top:0.5rem; }
+  .preview-img { width:100%; max-height:200px; object-fit:cover; border-radius:8px; margin-top:0.75rem; }
+  .modal-footer { display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1.5rem; }
+  .btn-cancel { background:none; border:1px solid var(--border); color:var(--mid); padding:0.6rem 1.25rem; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.8rem; cursor:pointer; }
+  .btn-save { background:var(--ink); color:white; border:none; padding:0.6rem 1.5rem; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:0.8rem; font-weight:500; cursor:pointer; transition:background 0.2s; }
+  .btn-save:hover { background:var(--accent); }
+  .upload-status { font-size:0.78rem; color:var(--mid); text-align:center; margin-top:0.4rem; }
+
+  .toast {
+    position:fixed; bottom:1.5rem; right:1.5rem;
+    background:var(--ink); color:var(--paper);
+    padding:0.75rem 1.25rem; border-radius:8px;
+    font-size:0.82rem; z-index:1000;
+    transform:translateY(60px); opacity:0; transition:all 0.3s;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .loading-bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); width:0; transition:width 0.3s; z-index:999; }
+
+  @media(max-width:540px) {
+    .cat-grid { grid-template-columns:repeat(3,1fr); }
+    .boop-logo { font-size:4.5rem; }
+  }
+  @media(max-width:360px) {
+    .cat-grid { grid-template-columns:repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="loading-bar" id="loadingBar"></div>
+
+<!-- ══ HOME ══ -->
+<div id="homeView" class="view active">
+  <div class="home-top">
+    <button class="btn-add-top" onclick="openUploadModal()">+ Añadir prenda</button>
+  </div>
+
+  <div class="home-center">
+    <h1 class="boop-logo">boop</h1>
+    <p class="boop-sub">tu estilista personal</p>
+
+    <div class="home-chat-wrap">
+      <input class="home-chat-input" id="homeChatInput" type="text" placeholder="Pregunta a tu estilista... ¿qué me pongo hoy?">
+      <button class="home-send-btn" onclick="goToStylist()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+
+    <div class="cat-section">
+      <p class="cat-section-label">Tu armario</p>
+      <div class="cat-grid">
+
+        <div class="cat-tile" onclick="openCategory('tops')">
+          <div class="cat-icon"><span class="icon-3d">🎽</span></div>
+          <span class="cat-name">Tops</span>
+          <span class="cat-count" id="hc-tops">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('camisetas')">
+          <div class="cat-icon"><span class="icon-3d">👕</span></div>
+          <span class="cat-name">Camisetas</span>
+          <span class="cat-count" id="hc-camisetas">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('pantalones')">
+          <div class="cat-icon"><span class="icon-3d">👖</span></div>
+          <span class="cat-name">Pantalones</span>
+          <span class="cat-count" id="hc-pantalones">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('vestidos')">
+          <div class="cat-icon"><span class="icon-3d">👗</span></div>
+          <span class="cat-name">Vestidos</span>
+          <span class="cat-count" id="hc-vestidos">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('faldas')">
+          <div class="cat-icon">
+            <svg class="icon-3d" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.18)) drop-shadow(0 2px 2px rgba(0,0,0,0.12));transition:transform 0.2s,filter 0.2s;">
+              <!-- waistband -->
+              <rect x="10" y="7" width="24" height="6" rx="2" fill="#E8A0BF"/>
+              <rect x="10" y="7" width="24" height="6" rx="2" fill="url(#wbGrad)"/>
+              <!-- skirt body flared -->
+              <path d="M10 13 L5 38 Q14 34 22 38 Q30 34 39 38 L34 13 Z" fill="url(#skirtGrad)"/>
+              <!-- skirt shine -->
+              <path d="M13 13 L9 34 Q13 32 16 33 L18 13 Z" fill="white" opacity="0.15"/>
+              <!-- waistband shine -->
+              <rect x="11" y="8" width="22" height="2" rx="1" fill="white" opacity="0.3"/>
+              <defs>
+                <linearGradient id="skirtGrad" x1="22" y1="13" x2="22" y2="38" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#F472B6"/>
+                  <stop offset="100%" stop-color="#BE185D"/>
+                </linearGradient>
+                <linearGradient id="wbGrad" x1="10" y1="7" x2="34" y2="13" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#F9A8D4"/>
+                  <stop offset="100%" stop-color="#EC4899"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <span class="cat-name">Faldas</span>
+          <span class="cat-count" id="hc-faldas">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('chaquetas')">
+          <div class="cat-icon"><span class="icon-3d">🧥</span></div>
+          <span class="cat-name">Chaquetas</span>
+          <span class="cat-count" id="hc-chaquetas">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('bolsos')">
+          <div class="cat-icon"><span class="icon-3d">👜</span></div>
+          <span class="cat-name">Bolsos</span>
+          <span class="cat-count" id="hc-bolsos">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('zapatos')">
+          <div class="cat-icon"><span class="icon-3d">👠</span></div>
+          <span class="cat-name">Zapatos</span>
+          <span class="cat-count" id="hc-zapatos">0 prendas</span>
+        </div>
+
+        <div class="cat-tile" onclick="openCategory('accesorios')">
+          <div class="cat-icon">
+            <svg class="icon-3d" width="44" height="44" viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.18)) drop-shadow(0 2px 2px rgba(0,0,0,0.12));transition:transform 0.2s,filter 0.2s;">
+              <defs>
+                <linearGradient id="bufGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FCA5A5"/>
+                  <stop offset="50%" stop-color="#EF4444"/>
+                  <stop offset="100%" stop-color="#991B1B"/>
+                </linearGradient>
+                <linearGradient id="bufGrad2" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+                  <stop offset="0%" stop-color="#FECACA"/>
+                  <stop offset="100%" stop-color="#DC2626"/>
+                </linearGradient>
+              </defs>
+              <!-- left tail hanging down -->
+              <path d="M10 18 Q7 26 9 36 Q10 40 13 41 Q15 42 16 39 Q17 34 15 26 L14 18 Z" fill="url(#bufGrad)"/>
+              <!-- left tail shine -->
+              <path d="M11 19 Q9 26 10 34" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.25" fill="none"/>
+              <!-- stripes on left tail -->
+              <line x1="10" y1="24" x2="15" y2="24" stroke="white" stroke-width="1" opacity="0.2"/>
+              <line x1="10" y1="29" x2="15" y2="29" stroke="white" stroke-width="1" opacity="0.2"/>
+              <line x1="10" y1="34" x2="15" y2="34" stroke="white" stroke-width="1" opacity="0.2"/>
+              <!-- right tail hanging down -->
+              <path d="M30 18 Q33 26 31 36 Q30 40 27 41 Q25 42 24 39 Q23 34 25 26 L26 18 Z" fill="url(#bufGrad)"/>
+              <!-- right tail shine -->
+              <path d="M31 20 Q33 27 31 35" stroke="white" stroke-width="1.2" stroke-linecap="round" opacity="0.2" fill="none"/>
+              <!-- stripes on right tail -->
+              <line x1="25" y1="24" x2="30" y2="24" stroke="white" stroke-width="1" opacity="0.2"/>
+              <line x1="25" y1="29" x2="30" y2="29" stroke="white" stroke-width="1" opacity="0.2"/>
+              <line x1="25" y1="34" x2="30" y2="34" stroke="white" stroke-width="1" opacity="0.2"/>
+              <!-- main wrap around neck (thick loop) -->
+              <path d="M10 18 Q10 8 22 7 Q34 8 34 18 Q34 24 22 25 Q10 24 10 18 Z" fill="url(#bufGrad2)"/>
+              <!-- wrap shine top -->
+              <path d="M13 11 Q22 8 31 11" stroke="white" stroke-width="2" stroke-linecap="round" opacity="0.3" fill="none"/>
+              <!-- wrap inner shadow -->
+              <path d="M10 18 Q10 22 22 23 Q34 22 34 18" stroke="#991B1B" stroke-width="1.5" fill="none" opacity="0.3"/>
+              <!-- fringe left -->
+              <line x1="10" y1="40" x2="9" y2="44" stroke="#B91C1C" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="12" y1="41" x2="11" y2="44" stroke="#B91C1C" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="14" y1="41" x2="14" y2="44" stroke="#B91C1C" stroke-width="1.5" stroke-linecap="round"/>
+              <!-- fringe right -->
+              <line x1="26" y1="41" x2="26" y2="44" stroke="#B91C1C" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="28" y1="41" x2="29" y2="44" stroke="#B91C1C" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="30" y1="40" x2="31" y2="44" stroke="#B91C1C" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <span class="cat-name">Accesorios</span>
+          <span class="cat-count" id="hc-accesorios">0 prendas</span>
+        </div>
+
+
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ WARDROBE VIEW ══ -->
+<div id="wardrobeView" class="view">
+  <nav class="top-nav">
+    <button class="back-btn" onclick="showView('homeView')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title" id="wardrobeTitle">boop</span>
+    <div class="nav-actions">
+      <button class="nav-btn" id="askOutfitBtn" onclick="askOutfit()">
+        ✦ Outfit <span class="sel-badge" id="selBadge" style="display:none">0</span>
+      </button>
+      <button class="nav-btn accent" onclick="openUploadModal()">+ Añadir</button>
+    </div>
+  </nav>
+  <div class="wardrobe-toolbar">
+    <input class="wt-search" id="wtSearch" type="text" placeholder="Buscar...">
+    <select class="wt-select" id="wtSort">
+      <option value="recent">Recientes</option>
+      <option value="name">Nombre</option>
+    </select>
+    <span class="count-label" id="itemCountLabel">0 prendas</span>
+  </div>
+  <div class="wardrobe-body">
+    <div class="wardrobe-grid" id="wardrobeGrid"></div>
+    <div class="empty-state" id="emptyState" style="display:none">
+      <div class="empty-icon">🪞</div>
+      <div class="empty-title">Nada aquí todavía</div>
+      <div class="empty-sub">Añade tu primera prenda</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STYLIST VIEW ══ -->
+<div id="stylistView" class="view">
+  <nav class="top-nav">
+    <button class="back-btn" onclick="showView('homeView')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <span class="nav-title">estilista</span>
+  </nav>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg-row assistant">
+      <div class="msg-sender">boop</div>
+      <div class="msg-bubble">¡Hola! Soy tu estilista personal. Puedo ayudarte a crear looks, combinar prendas o darte consejos de estilo. ¿En qué piensas? ✨</div>
+    </div>
+  </div>
+  <div class="quick-prompts">
+    <button class="q-btn" onclick="quickPrompt('¿Qué me pongo hoy?')">¿Qué me pongo hoy?</button>
+    <button class="q-btn" onclick="quickPrompt('Outfit para una cena romántica')">Para una cena</button>
+    <button class="q-btn" onclick="quickPrompt('Look casual para el fin de semana')">Look casual</button>
+    <button class="q-btn" onclick="quickPrompt('¿Qué prendas me faltan?')">¿Qué me falta?</button>
+    <button class="q-btn" onclick="quickPrompt('Combina las prendas seleccionadas para un outfit')">Combinar selección</button>
+  </div>
+  <div class="chat-input-bar">
+    <input class="chat-input" id="chatInput" type="text" placeholder="Escribe a boop...">
+    <button class="chat-send" onclick="sendMessage()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ══ UPLOAD MODAL ══ -->
+<div class="modal-overlay" id="uploadModal">
+  <div class="modal">
+    <div class="modal-title">Añadir prenda</div>
+    <div class="form-group">
+      <label class="form-label">Foto</label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="fileInput" accept="image/*">
+        <div style="font-size:1.75rem">📷</div>
+        <div class="drop-text">Haz clic o arrastra una foto</div>
+      </div>
+      <img class="preview-img" id="previewImg" style="display:none">
+      <div class="upload-status" id="uploadStatus"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nombre</label>
+      <input class="form-input" type="text" id="itemName" placeholder="Ej: Camisa blanca de lino">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoría</label>
+      <select class="form-select" id="itemCat">
+        <option value="tops">Tops</option>
+        <option value="camisetas">Camisetas</option>
+        <option value="pantalones">Pantalones</option>
+        <option value="vestidos">Vestidos</option>
+        <option value="faldas">Faldas</option>
+        <option value="chaquetas">Chaquetas</option>
+        <option value="bolsos">Bolsos</option>
+        <option value="zapatos">Zapatos</option>
+        <option value="accesorios">Accesorios</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color / notas</label>
+      <input class="form-input" type="text" id="itemNotes" placeholder="Ej: Azul marino, tela suave">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal()">Cancelar</button>
+      <button class="btn-save" id="saveBtn" onclick="saveItem()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://cxofbzfxvptbjkzrchvs.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4b2ZiemZ4dnB0YmprenJjaHZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNjQ0MTcsImV4cCI6MjA5NDk0MDQxN30.Nlc17yQDavu2llxzlRGGZsRyfcuw84SfZ8GgLK3P-Ig';
+const GEMINI = 'AIzaSyCacbfNX5orD2YC8-Pk86TbDmHPZ4J1wGs';
+const BUCKET = 'wardrobe';
+
+const CATS = ['tops','camisetas','pantalones','vestidos','faldas','chaquetas','bolsos','zapatos','accesorios'];
+const CAT_LABELS = { tops:'Tops', camisetas:'Camisetas', pantalones:'Pantalones', vestidos:'Vestidos', faldas:'Faldas', chaquetas:'Chaquetas', bolsos:'Bolsos', zapatos:'Zapatos', accesorios:'Accesorios' };
+
+let items=[], selected=[], currentCat='all', uploadFile=null, chatHistory=[];
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if (id==='wardrobeView') renderGrid();
+}
+
+function openCategory(cat) {
+  currentCat=cat;
+  document.getElementById('wardrobeTitle').textContent = CAT_LABELS[cat]||cat;
+  showView('wardrobeView');
+}
+
+function goToStylist() {
+  const msg=document.getElementById('homeChatInput').value.trim();
+  showView('stylistView');
+  if (msg) { document.getElementById('chatInput').value=msg; document.getElementById('homeChatInput').value=''; sendMessage(); }
+}
+document.getElementById('homeChatInput').addEventListener('keydown',e=>{ if(e.key==='Enter') goToStylist(); });
+
+async function sbFetch(path,opts={}) {
+  const res=await fetch(SB_URL+path,{...opts,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=representation',...(opts.headers||{})}});
+  if(!res.ok) throw new Error(await res.text());
+  const t=await res.text(); return t?JSON.parse(t):null;
+}
+async function uploadImg(file) {
+  const ext=file.name.split('.').pop();
+  const path=`items/${Date.now()}.${ext}`;
+  const res=await fetch(`${SB_URL}/storage/v1/object/${BUCKET}/${path}`,{method:'POST',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':file.type},body:file});
+  if(!res.ok) throw new Error('Error subiendo imagen');
+  return `${SB_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+}
+async function loadItems() {
+  setLoading(true);
+  try { items=await sbFetch('/rest/v1/wardrobe_items?order=created_at.desc')||[]; updateHomeCounts(); }
+  catch { showToast('Error cargando prendas'); }
+  setLoading(false);
+}
+function updateHomeCounts() {
+  CATS.forEach(c=>{
+    const el=document.getElementById('hc-'+c);
+    if(el){const n=items.filter(i=>i.category===c).length; el.textContent=n+(n===1?' prenda':' prendas');}
+  });
+}
+
+function renderGrid() {
+  const grid=document.getElementById('wardrobeGrid');
+  const empty=document.getElementById('emptyState');
+  const search=document.getElementById('wtSearch').value.toLowerCase();
+  const sort=document.getElementById('wtSort').value;
+  let filtered=items.filter(it=>{
+    const mc=currentCat==='all'||it.category===currentCat;
+    const mq=!search||it.name.toLowerCase().includes(search)||(it.notes||'').toLowerCase().includes(search);
+    return mc&&mq;
+  });
+  if(sort==='name') filtered.sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById('itemCountLabel').textContent=filtered.length+' prendas';
+  if(!filtered.length){grid.style.display='none';empty.style.display='flex';return;}
+  grid.style.display='grid'; empty.style.display='none';
+  grid.innerHTML=filtered.map(it=>`
+    <div class="item-card ${selected.includes(it.id)?'selected':''}" onclick="toggleSel(${it.id})">
+      ${it.image_url?`<img class="item-img" src="${it.image_url}" alt="${it.name}" loading="lazy">`:`<div class="item-placeholder">👗</div>`}
+      <div class="item-info">
+        <div class="item-name">${it.name}</div>
+        <div class="item-cat-tag">${CAT_LABELS[it.category]||it.category}</div>
+      </div>
+      <button class="item-del" onclick="delItem(event,${it.id})">✕</button>
+    </div>`).join('');
+}
+document.getElementById('wtSearch').addEventListener('input',renderGrid);
+document.getElementById('wtSort').addEventListener('change',renderGrid);
+
+function toggleSel(id){
+  const idx=selected.indexOf(id);
+  if(idx===-1) selected.push(id); else selected.splice(idx,1);
+  const b=document.getElementById('selBadge');
+  b.textContent=selected.length; b.style.display=selected.length>0?'inline':'none';
+  renderGrid();
+}
+async function delItem(e,id){
+  e.stopPropagation();
+  if(!confirm('¿Eliminar esta prenda?')) return;
+  try{ await sbFetch(`/rest/v1/wardrobe_items?id=eq.${id}`,{method:'DELETE'}); selected=selected.filter(s=>s!==id); await loadItems(); renderGrid(); showToast('Prenda eliminada'); }
+  catch{ showToast('Error eliminando'); }
+}
+function askOutfit(){
+  if(!selected.length){showToast('Selecciona prendas primero');return;}
+  const sel=items.filter(i=>selected.includes(i.id));
+  const desc=sel.map(i=>`${i.name} (${i.category}${i.notes?', '+i.notes:''})`).join(', ');
+  document.getElementById('chatInput').value=`Tengo estas prendas: ${desc}. ¿Cómo las combinarías?`;
+  showView('stylistView'); sendMessage();
+}
+
+function openUploadModal(){
+  document.getElementById('uploadModal').classList.add('open');
+  ['itemName','itemNotes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('previewImg').style.display='none';
+  document.getElementById('uploadStatus').textContent='';
+  uploadFile=null;
+}
+function closeModal(){document.getElementById('uploadModal').classList.remove('open');}
+document.getElementById('uploadModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.getElementById('fileInput').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return; uploadFile=f;
+  const img=document.getElementById('previewImg');
+  img.src=URL.createObjectURL(f); img.style.display='block';
+  if(!document.getElementById('itemName').value)
+    document.getElementById('itemName').value=f.name.replace(/\.[^.]+$/,'').replace(/[-_]/g,' ');
+});
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag-over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag-over'));
+dz.addEventListener('drop',e=>{
+  e.preventDefault(); dz.classList.remove('drag-over');
+  const f=e.dataTransfer.files[0];
+  if(f?.type.startsWith('image/')){uploadFile=f;const img=document.getElementById('previewImg');img.src=URL.createObjectURL(f);img.style.display='block';}
+});
+async function saveItem(){
+  const name=document.getElementById('itemName').value.trim();
+  const category=document.getElementById('itemCat').value;
+  const notes=document.getElementById('itemNotes').value.trim();
+  if(!name){showToast('Añade un nombre');return;}
+  const btn=document.getElementById('saveBtn');
+  btn.disabled=true; btn.textContent='Guardando...';
+  try{
+    let image_url=null;
+    if(uploadFile){document.getElementById('uploadStatus').textContent='Subiendo imagen...';image_url=await uploadImg(uploadFile);}
+    document.getElementById('uploadStatus').textContent='Guardando...';
+    await sbFetch('/rest/v1/wardrobe_items',{method:'POST',body:JSON.stringify({name,category,notes,image_url})});
+    showToast('✓ Prenda añadida'); closeModal(); await loadItems(); renderGrid();
+  }catch(e){showToast('Error: '+e.message);}
+  btn.disabled=false; btn.textContent='Guardar';
+}
+
+function quickPrompt(t){document.getElementById('chatInput').value=t;sendMessage();}
+document.getElementById('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')sendMessage();});
+async function sendMessage(){
+  const input=document.getElementById('chatInput');
+  const msg=input.value.trim(); if(!msg) return;
+  input.value='';
+  appendMsg('user',msg);
+  chatHistory.push({role:'user',parts:[{text:msg}]});
+  const context=items.length>0
+    ?`El armario tiene: ${items.map(i=>`${i.name} (${CAT_LABELS[i.category]||i.category}${i.notes?', '+i.notes:''})`).join('; ')}.`
+    :'El armario está vacío por ahora.';
+  const sys=`Eres boop, una estilista personal cercana, con gusto impecable y personalidad divertida. ${context} Responde en español, cálida y práctica. Máximo 3 párrafos cortos.`;
+  showTyping();
+  try{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI}`,
+      {method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({system_instruction:{parts:[{text:sys}]},contents:chatHistory,generationConfig:{maxOutputTokens:400}})});
+    const data=await res.json();
+    const reply=data.candidates?.[0]?.content?.parts?.[0]?.text||'No pude responder, intenta de nuevo.';
+    hideTyping(); appendMsg('assistant',reply);
+    chatHistory.push({role:'model',parts:[{text:reply}]});
+  }catch{hideTyping();appendMsg('assistant','Error al conectar. Intenta de nuevo.');}
+}
+function appendMsg(role,text){
+  const box=document.getElementById('chatMessages');
+  const d=document.createElement('div');
+  d.className=`msg-row ${role}`;
+  d.innerHTML=`<div class="msg-sender">${role==='user'?'Tú':'boop'}</div><div class="msg-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  box.appendChild(d); box.scrollTop=box.scrollHeight;
+}
+let typingEl=null;
+function showTyping(){
+  const box=document.getElementById('chatMessages');
+  typingEl=document.createElement('div');
+  typingEl.className='msg-row assistant';
+  typingEl.innerHTML='<div class="msg-sender">boop</div><div class="msg-bubble"><div class="typing-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div></div>';
+  box.appendChild(typingEl); box.scrollTop=box.scrollHeight;
+}
+function hideTyping(){if(typingEl){typingEl.remove();typingEl=null;}}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function setLoading(on){
+  const b=document.getElementById('loadingBar');
+  b.style.width=on?'65%':'100%';
+  if(!on) setTimeout(()=>b.style.width='0',400);
+}
+
+loadItems();
+</script>
+</body>
+</html>
